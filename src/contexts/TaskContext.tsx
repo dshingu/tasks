@@ -87,9 +87,19 @@ export const TaskProvider = ({children}) => {
                 msg: 'Task deleted.',
                 callback: async () => {
                     saveTask();
+                    setPill({
+                        msg: '',
+                        callback: () => {}
+                    });
                 }
-            })
-            console.log(response.data);
+            });
+
+            setTimeout(() => {
+                setPill({
+                    msg: '',
+                    callback: () => {}
+                });
+            }, 5000);
 
         } catch (e) {
             console.log(e);

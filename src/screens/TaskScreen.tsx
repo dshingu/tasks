@@ -21,6 +21,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 
 export default ({navigation}) => {
 
+    let mt = {bottom: 25};
     const [showModal, setShowModal] = React.useState(false);
 
     const toggleModal = () => {
@@ -33,6 +34,8 @@ export default ({navigation}) => {
         fetching, 
         pill
     } = React.useContext(TaskContext);
+
+    if (pill.msg !== '') mt.bottom = 65;
 
 
     const insets = useSafeAreaInsets();
@@ -59,6 +62,12 @@ export default ({navigation}) => {
                 <SafeAreaView style={{height: '100%', paddingTop: insets.top}}>
                     {/* <Header /> */}
                     <SearchBar />
+                    <View style={styles.filterContainer}>
+                        <View style={styles.filter}>
+                            <Text style={styles.filterText}>Due soon</Text>
+                            <Text style={styles.filterText}>Completed</Text>
+                        </View>
+                    </View>
                     <View style={styles.noItemsContainer}>
                         {content}
                     </View>
@@ -75,8 +84,8 @@ export default ({navigation}) => {
                     </Modal>  
                 </SafeAreaView>
             </SafeAreaProvider>
-            <TouchableOpacity style={styles.addNewButton} onPress={toggleModal}>
-                <Text style={[styles.addNewButtonText, {bottom: 50}]}>Add New Task</Text>
+            <TouchableOpacity style={[styles.addNewButton, mt]} onPress={toggleModal}>
+                <Text style={styles.addNewButtonText}>Add New Task</Text>
             </TouchableOpacity>  
             { (pill.msg !== '') ? <View style={styles.pillContainer}>
                 <Text style={styles.pillText}>{pill.msg}</Text>
@@ -129,5 +138,18 @@ const styles = StyleSheet.create({
     },
     undoText: {
         color: '#009BF5'
+    },
+    filterContainer: {
+        backgroundColor: '#fff'
+    },
+    filter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 'auto'
+    },
+    filterText: {
+        padding: 5,
+        borderRadius: 5,
+        borderWidth: 1
     }
 });
