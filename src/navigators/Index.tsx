@@ -1,10 +1,17 @@
+import React from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import TabNavigator from './TabNavigator';
+import AuthStackNavigator from './AuthStackNavigator';
 import {NavigationContainer} from '@react-navigation/native';
-import TaskStackNavigator from './TaskStackNavigator';
+import LoadingScreen from '../screens/LoadingScreen';
 
 export default () => {
+
+    const {token} = React.useContext(AuthContext);
+    //return <LoadingScreen />;
     return (
         <NavigationContainer>
-            <TaskStackNavigator />
+            { (token !== null) ? <TabNavigator /> : <AuthStackNavigator /> }
         </NavigationContainer>
     );
 }

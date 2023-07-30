@@ -1,29 +1,89 @@
 import React from 'react';
+
 import Header from '../components/Header';
 import {
+    ActivityIndicator,
+    Modal,
+    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity
+    TouchableOpacity,
+    View
 } from 'react-native';
+import NewTaskScreen from './NewTaskScreen';
 import SearchBar from '../components/SearchBar';
+import TaskList from '../components/task/TaskList';
 import { TaskContext } from '../contexts/TaskContext';
+import {AntDesign, Feather} from '@expo/vector-icons';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 export default ({navigation}) => {
 
-    const {tasks} = React.useContext(TaskContext);
-    console.log(navigation);
+    const [showModal, setShowModal] = React.useState(false);
+
+    const toggleModal = () => {
+        setShowModal(!showModal);
+    }
+
+    const {
+        tasks, 
+        saveTask, 
+        fetching, 
+        pill
+    } = React.useContext(TaskContext);
+
+
+    const insets = useSafeAreaInsets();
+
+    let content;
+
+    if (fetching === true ) {
+        content = (
+            <ActivityIndicator size={'large'} />
+        );
+    }
+
+    if (fetching === false && tasks.length > 0) {
+        content = (<TaskList items={tasks} />);
+    } 
+
+    if (fetching === false && tasks.length === 0) {
+        content = (<Text>No tasks available.</Text>);
+    }
 
     return (
         <>
-            <Header />
-            <SearchBar />
-            <ScrollView contentContainerStyle={tasks.length === 0 ? styles.noItemsContainer : {}}>
-                <Text>No Tasks Available!</Text>
-            </ScrollView>
-            <TouchableOpacity style={styles.addNewButton} onPress={() => navigation.navigate('NewTask')}>
-                <Text style={styles.addNewButtonText}>Add New Task</Text>
-            </TouchableOpacity>
+            <SafeAreaProvider>
+                <SafeAreaView style={{height: '100%', paddingTop: insets.top}}>
+                    {/* <Header /> */}
+                    <SearchBar />
+                    <View style={styles.noItemsContainer}>
+                        {content}
+                    </View>
+                    <Modal visible={showModal} animationType={'slide'} presentationStyle={'fullScreen'}>
+                        <View style={styles.modalHeader}>
+                            <TouchableOpacity onPress={toggleModal} style={{padding: 10}}>
+                                <AntDesign name="close" size={24} color="black" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {saveTask(); toggleModal();}} style={{padding: 10}}>
+                            <Feather name="save" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                        <NewTaskScreen />
+                    </Modal>  
+                </SafeAreaView>
+            </SafeAreaProvider>
+            <TouchableOpacity style={styles.addNewButton} onPress={toggleModal}>
+                <Text style={[styles.addNewButtonText, {bottom: 50}]}>Add New Task</Text>
+            </TouchableOpacity>  
+            { (pill.msg !== '') ? <View style={styles.pillContainer}>
+                <Text style={styles.pillText}>{pill.msg}</Text>
+                <TouchableOpacity onPress={pill.callback}>
+                    <Text style={styles.undoText}>Undo</Text>
+                </TouchableOpacity>
+            </View>  : null }
         </>
     );
 }
@@ -32,7 +92,8 @@ const styles = StyleSheet.create({
     noItemsContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        height:'100%',
     },
     addNewButton: {
         paddingVertical: 15,
@@ -46,5 +107,27 @@ const styles = StyleSheet.create({
     addNewButtonText: {
         color: '#fff',
         fontWeight: 'bold'
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 30
+    },
+    pillContainer: {
+        position: 'absolute',
+        width: '80%',
+        backgroundColor: '#232528',
+        borderRadius: 5,
+        bottom: 10,
+        marginHorizontal: '10%',
+        padding: 15,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    pillText: {
+        color: '#fff'
+    },
+    undoText: {
+        color: '#009BF5'
     }
 });
